@@ -101,7 +101,7 @@ namespace WebApplication6.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Description,Name,Created,Updated,PriorityId,StatusId,TypeId,CreatorId,AssignedId")] TicketModels ticketModels)
+        public ActionResult Create([Bind(Include = "Id,Description,Name,ProjectId,Created,Updated,PriorityId,StatusId,TypeId,CreatorId,AssignedId")] TicketModels ticketModels)
         {
             if (ModelState.IsValid)
             {
