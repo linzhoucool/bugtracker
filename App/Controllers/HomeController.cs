@@ -13,11 +13,9 @@ namespace WebApplication6.Controllers
         {
             var user = new ApplicationUser();
             var db = new ApplicationDbContext();
-     
+            db.TicketModels.Where(p => p.CreatorId == "1");
             user.CreatedTickets.ToList();
             user.AssignedTickets.ToList();
-
-
 
             return View();
         }

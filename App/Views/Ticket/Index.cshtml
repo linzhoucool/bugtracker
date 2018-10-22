@@ -21,10 +21,10 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Project.Name)
+                    @*@Html.DisplayNameFor(model => model.Project.Name)*@ProjectId
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Priority.Name)
+                    @*@Html.DisplayNameFor(model => model.Priority.Name)*@PriorityId
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Description)
@@ -39,10 +39,10 @@
                     @Html.DisplayNameFor(model => model.Updated)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.StatusId)
+                    @*@Html.DisplayNameFor(model => model.StatusId)*@StatusId
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.TypeId)
+                    @*@Html.DisplayNameFor(model => model.TypeId)*@TypeId
                 </th>
 
                 <th></th>
@@ -68,10 +68,10 @@
                         @Html.DisplayFor(modelItem => item.Name)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Created)
+                        @Html.DisplayDate(item.Created)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Updated)
+                        @Html.DisplayDate(item.Updated)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.StatusId)
@@ -87,5 +87,9 @@
                     </td>
                 </tr>
             }
+
+            @*@Html.Div("iddiv").Content("<p>")*@
+
         </tbody>
+
     </table>

@@ -3,13 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication6.Helper;
 using WebApplication6.Models;
 
-namespace WebApplication6.Controllers
+namespace WebApplication6.Controllers4
 {
     public class TicketController : Controller
     {
@@ -60,15 +62,18 @@ namespace WebApplication6.Controllers
 
             return View("Index", ticketModels.ToList());
         }
+    
         [Authorize(Roles = "Project Manager, Developer")]
         public ActionResult TheProjManagerTicketsAndTheDeveloperTickets()
         {
-            var userId = User.Identity.GetUserId();
-            var projectModel = db.Users.Where(p => p.Id == userId).First().
-                Projects.Select(p => p.Id).First();
-            return View("Index", db.TicketModels.Where(p => p.Id == projectModel).ToList());
+            //在数据库里找跟登录者一样的id，然后再在projects里找跟数据库一样用户id的project id，并且将这些挑选出来的project id做成list，在index页面显示出来
+ 
+            var userId = User.Identity.GetUserId(); // find the same id with the peroson who log in in the database 
+            var projectModel = db.Users.Where(p => p.Id == userId).First().// find the same project id in the project  
+            Projects.Select(p => p.Id).First();
+            return View("Index", db.TicketModels.Where(p => p.Id == projectModel).ToList()); // show a list of 
         }
-
+        
         // GET: Ticket/Details/5
         public ActionResult Details(int? id)
         {
@@ -83,7 +88,7 @@ namespace WebApplication6.Controllers
             }
             return View(ticketModels);
         }
-
+        
         // GET: Ticket/Create
         public ActionResult Create()
         {
@@ -101,15 +106,30 @@ namespace WebApplication6.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Description,Name,ProjectId,Created,Updated,PriorityId,StatusId,TypeId,CreatorId,AssignedId")] TicketModels ticketModels)
+        public ActionResult Create([Bind(Include = "Id,Description,Name,ProjectId,Created,Updated,PriorityId,StatusId,TypeId,CreatorId,AssignedId")] TicketModels ticketModels,HttpPostedFileBase image)
         {
             if (ModelState.IsValid)
             {
+                var userId = User.Identity.GetUserId();
+                ticketModels.CreatorId = userId;
+                ticketModels.Created = DateTimeOffset.Now;
+                ticketModels.StatusId = 1;
+
+                if (ImageUploadValidator.IsWebFriendlyImage(image))
+                {
+                    var fileName = Path.GetFileName(image.FileName);
+                    image.SaveAs(Path.Combine(Server.MapPath("~/Uploads/"), fileName));
+
+                    var iomg = new TicketAttachment();
+                    iomg.FilePath = "/Uploads/" + fileName;
+                }
+
                 db.TicketModels.Add(ticketModels);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            
+            ViewBag.AssigneeId = new SelectList(db.Users, "Id", "Name", ticketModels.AssignedId);
             ViewBag.CreatorId = new SelectList(db.Users, "Id", "Name", ticketModels.CreatorId);
             ViewBag.PriorityId = new SelectList(db.Priority, "Id", "Name", ticketModels.PriorityId);
             ViewBag.StatusId = new SelectList(db.Status, "Id", "Name", ticketModels.StatusId);
@@ -118,7 +138,7 @@ namespace WebApplication6.Controllers
             
             return View(ticketModels);
         }
-
+        
         // GET: Ticket/Edit/5
         public ActionResult Edit(int? id)
         {
@@ -131,8 +151,14 @@ namespace WebApplication6.Controllers
             {
                 return HttpNotFound();
             }
+
+            ViewBag.AssigneeId = new SelectList(db.Users, "Id", "Name", ticketModels.AssignedId);
             ViewBag.CreatorId = new SelectList(db.Users, "Id", "Name", ticketModels.CreatorId);
             ViewBag.PriorityId = new SelectList(db.Priority, "Id", "Name", ticketModels.PriorityId);
+            ViewBag.StatusId = new SelectList(db.Status, "Id", "Name", ticketModels.StatusId);
+            ViewBag.TypeId = new SelectList(db.Type, "Id", "Name", ticketModels.TypeId);
+            ViewBag.ProjectId = new SelectList(db.Projects, "Id", "Name", ticketModels.ProjectId);
+
             return View(ticketModels);
         }
 
@@ -145,15 +171,55 @@ namespace WebApplication6.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(ticketModels).State = EntityState.Modified;
+                var dateChanged = DateTimeOffset.Now;
+                var changes = new List<TicketHistories>();
+                var dbTicket = db.TicketModels.First(p => p.Id == ticketModels.Id);
+                dbTicket.Title = ticketModels.Title;
+                dbTicket.Description = ticketModels.Description;
+                dbTicket.TypeId = ticketModels.TypeId;
+                dbTicket.Updated = dateChanged;
+                var originalValues = db.Entry(dbTicket).OriginalValues;
+                var currentValues = db.Entry(dbTicket).CurrentValues;
+                foreach (var property in originalValues.PropertyNames)
+                {
+                    var originalValue = originalValues[property]?.ToString();
+                    var currentValue = currentValues[property]?.ToString();
+                    if (originalValue != currentValue)
+                    {
+                        var history = new TicketHistories();
+                        history.Changed = dateChanged;
+                        history.NewValue = GetValueFromKey(property, currentValue);
+                        history.OldValue = GetValueFromKey(property, originalValue);
+                        history.property = property;
+                        history.TicketId = dbTicket.Id;
+                        history.UserId = User.Identity.GetUserId();
+                        changes.Add(history);
+                    }
+                }
+                db.TicketHistories.AddRange(changes);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
+            ViewBag.AssigneeId = new SelectList(db.Users, "Id", "Name", ticketModels.AssignedId);
             ViewBag.CreatorId = new SelectList(db.Users, "Id", "Name", ticketModels.CreatorId);
             ViewBag.PriorityId = new SelectList(db.Priority, "Id", "Name", ticketModels.PriorityId);
+            ViewBag.StatusId = new SelectList(db.Status, "Id", "Name", ticketModels.StatusId);
+            ViewBag.TypeId = new SelectList(db.Type, "Id", "Name", ticketModels.TypeId);
+            ViewBag.ProjectId = new SelectList(db.Projects, "Id", "Name", ticketModels.ProjectId);
             return View(ticketModels);
         }
+        
+        private string GetValueFromKey(string propertyName, string key)
+        {
+            if (propertyName == "TicketTypeId")
+            {
+                return db.Type.Find(Convert.ToInt32(key)).Name;
+            }
+            return key;
+        }
 
+        
         // GET: Ticket/Delete/5
         public ActionResult Delete(int? id)
         {
@@ -179,6 +245,68 @@ namespace WebApplication6.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+        
+        [HttpPost]
+        [Authorize]
+        public ActionResult CreateComment(int id, string body)
+        {
+            var ticketcomment = db.TicketModels.Where(p => p.Id == id).FirstOrDefault();
+
+            if (ticketcomment == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(body))
+            {
+                TempData["ErrorMessage"] = "Comment is required";
+                return RedirectToAction("Details", new {id=id });
+            }
+
+            var comment = new TicketComment();
+            comment.UserId = User.Identity.GetUserId();
+            comment.TicketId = ticketcomment.Id;
+            comment.Created = DateTime.Now;
+            comment.Comment = body;
+
+            db.TicketComments.Add(comment);
+            db.SaveChanges();
+
+            return RedirectToAction("Details", new { id=id });
+        }
+
+        // Attachment Create
+        public ActionResult CreateAttachment(int id, HttpPostedFileBase image)
+        {
+
+            var sbjl = new TicketAttachment();
+            var sbgl =db.TicketModels.Where(p => p.Id == id).FirstOrDefault();
+
+            if (ModelState.IsValid)
+            {
+
+                if (ImageUploadValidator.IsWebFriendlyImage(image))
+                {
+                    ViewBag.ErrorMessage = "Uploaded the avater is required";
+
+                }
+                 var fileName = Path.GetFileName(image.FileName);
+                 image.SaveAs(Path.Combine(Server.MapPath("~/Uploads/"), fileName));
+                sbjl.FilePath = "/Uploads/" + fileName;
+                sbjl.UserId = User.Identity.GetUserId();
+                sbjl.TicketId = sbgl.Id;
+                sbjl.Created = DateTime.Now;
+               
+
+                db.TicketAttachments.Add(sbjl);
+                db.SaveChanges();
+                return RedirectToAction("Details",new{id});
+            }
+
+            return View(sbjl);
+        }
+        // Create Notification
+      
 
         protected override void Dispose(bool disposing)
         {

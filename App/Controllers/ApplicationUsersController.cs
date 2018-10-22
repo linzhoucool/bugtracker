@@ -12,6 +12,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 
+
+
+
 namespace WebApplication6.Controllers
 {
     [Authorize]
@@ -72,7 +75,6 @@ namespace WebApplication6.Controllers
 
             return RedirectToAction("Index");
         }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
