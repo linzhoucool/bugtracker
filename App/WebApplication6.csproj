@@ -209,8 +209,11 @@
     <Compile Include="Helper\UserRoleHelper.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ActionLog.cs" />
+    <Compile Include="Models\PersonalEmailService.cs" />
     <Compile Include="Models\Priority.cs" />
     <Compile Include="Models\Status.cs" />
+    <Compile Include="Models\TicketAssignViewModel.cs" />
     <Compile Include="Models\TicketAttachments.cs" />
     <Compile Include="Models\TicketComment.cs" />
     <Compile Include="Models\TicketHistories.cs" />
@@ -219,7 +222,7 @@
     <Compile Include="Models\TicketNotification.cs" />
     <Compile Include="Models\Type.cs" />
     <Compile Include="Models\UserRoleViewModel.cs" />
-    <Compile Include="Models\Classes\Project.cs" />
+    <Compile Include="Migrations\Classes\Project.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Users.cs" />
@@ -278,6 +281,7 @@
     <Content Include="font-awesome\scss\_spinning.scss" />
     <Content Include="font-awesome\scss\_stacked.scss" />
     <Content Include="font-awesome\scss\_variables.scss" />
+    <Content Include="private.config" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
@@ -379,6 +383,7 @@
     <Content Include="Views\TicketComments\Details.cshtml" />
     <Content Include="Views\TicketComments\Edit.cshtml" />
     <Content Include="Views\TicketComments\Index.cshtml" />
+    <Content Include="Views\Ticket\AssignUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -6,9 +6,20 @@
 
 <h2>Details</h2>
 
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#peopleTable').DataTable();
+        });
+    </script>
+}
+
 <div>
     <h4>TicketModels</h4>
     <hr />
+
+
     <dl class="dl-horizontal">
         <dt>
             @*@Html.DisplayNameFor(model => model.Project.Name)*@
@@ -62,20 +73,20 @@
 
         <dt>
             @*@Html.DisplayNameFor(model => model.StatusId)*@
-            Status Id
+            StatusId
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.StatusId)
+            @Html.DisplayFor(model => model.Status.Name)
         </dd>
 
         <dt>
             @*@Html.DisplayNameFor(model => model.TypeId)*@
-            Type Id
+            TypeId
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TypeId)
+            @Html.DisplayFor(model => model.Type.Name)
         </dd>
     </dl>
 </div>
@@ -95,6 +106,7 @@
     <div>
         Submit your comment!
     </div>
+
     <div>
         @using (Html.BeginForm("CreateComment", "Ticket", FormMethod.Post))
         {
@@ -110,7 +122,7 @@
 }
 
 <div>
-   Attachments:
+    Attachments:
     @foreach (var attachment in Model.TicketAttachments)
     {
         <p>
@@ -123,14 +135,12 @@
 @if (User.Identity.IsAuthenticated)
 {
     <div>
-      Upload your file!
+        Upload your file!
     </div>
     <div>
-        @using (Html.BeginForm("CreateAttachment", "Ticket", new { id = Model.Id } , FormMethod.Post,new { enctype = "Multipart/form-data" } ))
+        @using (Html.BeginForm("CreateAttachment", "Ticket", new { id = Model.Id }, FormMethod.Post, new { enctype = "Multipart/form-data" }))
         {
-        <input name="image" type="file" class="form-control" id="fileUpload" />
-       
-
+            <input name="image" type="file" class="form-control" id="fileUpload" />
 
             if (ViewBag.ErrorMessage != null)
             {
@@ -140,10 +150,64 @@
         }
     </div>
 }
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+
+
+    <table id="peopleTable" class="table">
+        <thead>
+            <tr>
+                <th>
+                    @*@Html.DisplayNameFor(model => model.Describtion.Name)*@Describtion
+                </th>
+                <th>
+                    @*@Html.DisplayNameFor(model => model.Priority.Name)*@PriorityId
+                </th>
+                <th>
+                    @*@Html.DisplayNameFor(model => model.StatusId)*@StatusId
+                </th>
+                <th>
+                    @*@Html.DisplayNameFor(model => model.TypeId)*@TypeId
+                </th>
+                </tr>
+            </thead>
+            </table>
+
+
+    @*<tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <th>
+                @Html.DisplayFor(modelItem => item.Project.Name)
+            </th>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Comment.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Attachment.Name)
+            </td>
+   </tr>*@
+
+                <p>
+                    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+                    @Html.ActionLink("Back to List", "Index")
+                </p>
 
 
 

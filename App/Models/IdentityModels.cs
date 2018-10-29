@@ -18,12 +18,13 @@ namespace WebApplication6.Models
 
         public ApplicationUser()
         {
+
             Projects = new HashSet<Project>();
             CreatedTickets= new HashSet<TicketModels>();
             AssignedTickets = new HashSet<TicketModels>();
             TicketAttachments = new HashSet<TicketAttachment>();
             TicketHistories = new HashSet<TicketHistories>();
-         
+            Notifications = new HashSet<TicketNotification>();
         }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -40,6 +41,8 @@ namespace WebApplication6.Models
         public virtual ICollection<TicketHistories> TicketHistories { get; set; }
 
         public virtual ICollection<TicketComment> Comments { get; set; }
+
+        public virtual ICollection<TicketNotification> Notifications { get; set; }
 
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
@@ -79,6 +82,8 @@ namespace WebApplication6.Models
         public System.Data.Entity.DbSet<WebApplication6.Models.TicketAttachment> TicketAttachments { get; set; }
 
         public System.Data.Entity.DbSet<WebApplication6.Models.TicketHistories> TicketHistories { get; set; }
+
+        public System.Data.Entity.DbSet<WebApplication6.Models.TicketNotification> TicketNotifications{ get; set; }
 
 
         //public System.Data.Entity.DbSet<WebApplication6.Models.ApplicationUser> ApplicationUsers { get; set; }

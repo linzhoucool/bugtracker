@@ -16,6 +16,7 @@ namespace WebApplication6.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: TicketComments
+       
         public ActionResult Index()
         {
             var ticketComments = db.TicketComments.Include(t => t.Ticket);
@@ -38,6 +39,7 @@ namespace WebApplication6.Controllers
         }
 
         // GET: TicketComments/Create
+        [Authorize(Roles = "ProjectManager")]
         public ActionResult Create()
         {
             ViewBag.TicketId = new SelectList(db.TicketModels, "Id", "Description");
@@ -63,6 +65,7 @@ namespace WebApplication6.Controllers
         }
 
         // GET: TicketComments/Edit/5
+
         public ActionResult Edit(int? id)
         {
             if (id == null)

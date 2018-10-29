@@ -74,16 +74,17 @@
                         @Html.DisplayDate(item.Updated)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.StatusId)
+                        @Html.DisplayFor(modelItem => item.Status.Name)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.TypeId)
+                        @Html.DisplayFor(modelItem => item.Type.Name)
                     </td>
 
                     <td>
                         @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
                         @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })  |
+                        @Html.ActionLink("AssignUsers", "AssignUsers", new { id = item.Id })
                     </td>
                 </tr>
             }

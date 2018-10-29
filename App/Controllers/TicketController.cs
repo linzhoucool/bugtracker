@@ -6,7 +6,9 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using WebApplication6.Helper;
 using WebApplication6.Models;
@@ -88,8 +90,9 @@ namespace WebApplication6.Controllers4
             }
             return View(ticketModels);
         }
-        
+
         // GET: Ticket/Create
+       
         public ActionResult Create()
         {
             ViewBag.ProjectId = new SelectList(db.Projects, "Id", "Name");
@@ -247,8 +250,8 @@ namespace WebApplication6.Controllers4
         }
         
         [HttpPost]
-        [Authorize]
-        public ActionResult CreateComment(int id, string body)
+        [Authorize(Roles ="Admin,Project Manager,Submitter,Developer")]
+        public ActionResult CreateComment(int id, string body , IdentityMessage message)
         {
             var ticketcomment = db.TicketModels.Where(p => p.Id == id).FirstOrDefault();
 
@@ -268,15 +271,43 @@ namespace WebApplication6.Controllers4
             comment.TicketId = ticketcomment.Id;
             comment.Created = DateTime.Now;
             comment.Comment = body;
-
             db.TicketComments.Add(comment);
+
+            //Step 1: Find if there is a developer assigned to the ticket
+
+            //Step 2: If yes, send him an e-email
+
+
+
+            var attachmentFind = db.Users.Where(t => t.Id == comment.UserId).FirstOrDefault();
+
+            var email = WebConfigurationManager.AppSettings["emailto"];
+
+
+
+            var personalEmailService = new PersonalEmailService();
+            var mailMessage = new MailMessage( 
+               WebConfigurationManager.AppSettings["emailto"],
+               attachmentFind.Email
+               );
+
+
+
+            mailMessage.Body = "fake";
+            mailMessage.Subject = "comments";
+            mailMessage.IsBodyHtml = true;
+            personalEmailService.Send(mailMessage);
+
+          
             db.SaveChanges();
 
             return RedirectToAction("Details", new { id=id });
         }
 
         // Attachment Create
-        public ActionResult CreateAttachment(int id, HttpPostedFileBase image)
+        [HttpPost]
+        [Authorize(Roles = "Admin,Project Manager,Submitter,Developer")]
+        public ActionResult CreateAttachment(int id, HttpPostedFileBase image, IdentityMessage message)
         {
 
             var sbjl = new TicketAttachment();
@@ -296,9 +327,19 @@ namespace WebApplication6.Controllers4
                 sbjl.UserId = User.Identity.GetUserId();
                 sbjl.TicketId = sbgl.Id;
                 sbjl.Created = DateTime.Now;
-               
-
                 db.TicketAttachments.Add(sbjl);
+
+                var attachmentFind2 = db.Users.Where(t => t.Id == sbjl.UserId).FirstOrDefault();
+                var personalEmailService = new PersonalEmailService();
+                var mailMessage = new MailMessage(
+                   WebConfigurationManager.AppSettings["emailto"],
+                  attachmentFind2.Email
+                   );
+                mailMessage.Body = "Correct";
+                mailMessage.Subject = "Attachment";
+                mailMessage.IsBodyHtml = true;
+                personalEmailService.Send(mailMessage);
+               
                 db.SaveChanges();
                 return RedirectToAction("Details",new{id});
             }
@@ -306,8 +347,56 @@ namespace WebApplication6.Controllers4
             return View(sbjl);
         }
         // Create Notification
-      
+        // Assign User
+        [Authorize(Roles= "ProjectManager")]
+        public ActionResult AssignUsers(int id)
+        {
+            var model = new TicketAssignViewModel();
 
+            model.Id = id;
+
+            var Ticket = db.TicketModels.FirstOrDefault(p => p.Id == id);
+            var users = db.Users.ToList();
+            var userIdsAssignedToTicket = Ticket.Users.Select(p => p.Id).ToList();
+
+            model.UserList = new MultiSelectList(users, "Id", "DisplayName", userIdsAssignedToTicket);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize (Roles = "ProjectManager")]
+        public ActionResult AssignUsers(TicketAssignViewModel model)
+        {
+            //STEP 1: Find the project
+            var ticket = db.TicketModels.FirstOrDefault(p => p.Id == model.Id);
+
+            //STEP 2: Remove all assigned users from this project
+            var assignedUsers = ticket.Users.ToList();
+
+            foreach (var user in assignedUsers)
+            {
+                ticket.Users.Remove(user);
+            }
+
+            //STEP 3: Assign users to the project
+            if (model.SelectedUsers != null)
+            {
+                foreach (var userId in model.SelectedUsers)
+                {
+                    var user = db.Users.FirstOrDefault(p => p.Id == userId);
+
+                    ticket.Users.Add(user);
+                }
+            }
+
+            //STEP 4: Save changes to the database
+            db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+        
+        //
         protected override void Dispose(bool disposing)
         {
             if (disposing)

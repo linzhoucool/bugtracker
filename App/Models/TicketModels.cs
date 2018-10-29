@@ -38,13 +38,11 @@ namespace WebApplication6.Models
 
         public string AssignedId { get; set; }
         public virtual ApplicationUser Assigned { get; set; }
-
-
         
         public virtual ICollection<TicketAttachment> TicketAttachments { get; set; }
           public virtual ICollection<TicketComment> TicketComments { get; set; }
             public virtual ICollection<TicketHistories> TicketHistories { get; set; }
         public virtual ICollection<TicketNotification> TicketNotifications { get; set; }
-
+        public virtual ICollection<ApplicationUser>Users { get; set; }
     }
     }

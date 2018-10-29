@@ -152,6 +152,14 @@
             <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
+
+                    <li>
+                        <a href="">DashBoard</a> 
+                    </li>
+
+
+
+
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-chevron-circle-right"></i> Projects <i class="fa fa-hand-o-down"></i></a>
                         <ul id="demo" class="collapse">
@@ -180,6 +188,29 @@
                             </li>
 
                         </ul>
+                    </li>
+
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#demo4"><i class="fa fa-chevron-circle-right"></i> Demo Profiles <i class="fa fa-hand-o-down"></i></a>
+                        <ul id="demo4" class="collapse">
+                            <li>
+                                <a href="@Url.Action("DemoResult","Account")">admin</a>
+                            </li>
+
+                            <li>
+                                <a href="@Url.Action("DemoResult1","Account")">Project Manager</a>
+                            </li>
+
+                            <li>
+                                <a href="@Url.Action("DemoResult2","Account")">Developer</a>
+                            </li>
+
+                            <li>
+                                <a href="@Url.Action("DemoResult3","Account")">Submitter</a>
+                            </li>
+                        </ul>
+
+
                     </li>
                 </ul>
             </div>
